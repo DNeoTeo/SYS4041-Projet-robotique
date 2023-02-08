@@ -26,7 +26,7 @@ void cmd_motors(int pwmD, int pwmG){
     digitalWrite(pinMotorDir_A, (pwmG>0));
     analogWrite(pinMotorPWM_A, (pwmG>0)?pwmG:(-pwmG));
     digitalWrite(pinMotorDir_B, (pwmD>0));
-    analogWrite(pinMotorPWM_B, (pwmD>0)?pwmG:(-pwmD));
+    analogWrite(pinMotorPWM_B, (pwmD>0)?pwmD:(-pwmD));
 }
 
 void cmd_robot(int lineaire, int angulaire){
