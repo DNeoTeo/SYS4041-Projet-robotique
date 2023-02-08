@@ -1,7 +1,4 @@
 #include <Arduino.h>
-#include <HUSKYLENS.h>
-#include <motor.h>
-
 #define PWMA    3
 #define DIRA    2
 #define PWMB    9
@@ -15,10 +12,8 @@ void setup() {
 }
 
 void loop() {
-  // PWM HIGH tourne, LOW arrêt
-  //DIR HIGH avance, LOW recule
     digitalWrite(PWMA, HIGH);
-    digitalWrite(DIRA, LOW);
+    digitalWrite(DIRA, HIGH);
     digitalWrite(PWMB, HIGH);
     digitalWrite(DIRB, HIGH);
 }
