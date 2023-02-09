@@ -46,6 +46,8 @@ void loop() {
     HUSKYLENSResult tag = getTag(8);
     float asserv = -0.8;
     int consigne = 160;
+    // The height we wish to reach
+    int HeightObjectif = 180;
 
     if(tag.ID != -1){
       printResult(tag);
@@ -54,10 +56,15 @@ void loop() {
       int output = (int)((float)(erreur * asserv)); //min(output, 255) max(ouput, -255)
       output = max(output, (-255));
       output = min(output, 255);
-      
 
       cmd_robot(0, (output));
       delay(100);
+
+      erreur = HeightObjectif - input;
+      output = (int)((float)(erreur * asserv));
+      output = max(output, (-255));
+      output = min(output, 255);
+
     }
     else Serial.println("Mauvais tag");
     cmd_robot(0, 0);
