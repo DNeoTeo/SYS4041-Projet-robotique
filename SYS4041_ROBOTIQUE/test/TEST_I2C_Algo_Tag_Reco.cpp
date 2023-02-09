@@ -1,18 +1,16 @@
 #include <Arduino.h>
 #include "HUSKYLENS.h"
 
-huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
-enum state {
+enum state_e {
     IDLE,
     TURN,
     FORWARD
-}
+};
 
-state.e state = IDLE;
+state_e state = IDLE;
 long last_millis;
 
-switch (state)
-{
+switch (state){
 case IDLE :
     cmd_robot(0,0);
     if (isTag(1)) {
@@ -34,10 +32,11 @@ default:
     break;
 }
 
+
 void newState(state new) {
     state = new;
 }
 
 bool delayState (int delaytime) {
-    if ()
+    return ((millis()-last-millis)>= delay_time);
 }

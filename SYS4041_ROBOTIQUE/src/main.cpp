@@ -7,16 +7,7 @@
 //--------------------------------Constante - Variables globales
 
 HUSKYLENS huskylens; //HUSKYLENS green line >> SDA; blue line >> SCL
-enum state_e {
-    IDLE,
-    STOP,
-    LEFT,
-    RIGHT,
-    FORWARD
-};
 
-state_e state = IDLE;
-long last_millis;
 
 //--------------------------------HEADER
 void printResult(HUSKYLENSResult result);
@@ -78,32 +69,6 @@ void loop() {
       cmd_robot(0, 0);
     }
 
-  /*switch (state)
-  {
-      case IDLE :
-          cmd_robot(0,0);
-          if (isTag(1)) {
-              newState(TURN);
-          }
-          if(isTag(2)) {
-              newState(FORWARD);
-          }
-          break;
-
-      case TURN :
-          cmd_robot(0,255);
-          if(delayState(1000)) {
-              newState(IDLE);
-          }
-          break;
-
-      default:
-          break;
-  }*/
-
-
-
-
 
 }
 
@@ -156,3 +121,84 @@ HUSKYLENSResult getTag(int indexTag){
     result.ID = -1;
     return result;
 } 
+
+
+/********** State Machine *********/
+void stateMachine() {
+  // Variables
+  enum state_e {
+    IDLE,
+    START,
+    LOOK_FOR_TAG,
+    TAG,
+    STOP
+  };
+
+  state_e state = IDLE;
+  long last_millis;
+  int TagNbr;
+
+  // Switch case
+  switch (state)
+  {
+    case IDLE :
+      //faut checker la couleur si c'est vert on va dans START
+      cmd_robot(0,0);
+      if (checkcolor()) {
+        if(delayState(1000)) {
+            newState(START);
+        }
+      }
+      break;
+
+    case START :
+      //c'est vert, on démarre et on va dans look for tag
+      TagNbr = 1;
+      if(delayState(1000)) {
+          newState(LOOK_FOR_TAG);
+      }
+      break;
+    
+    case LOOK_FOR_TAG :
+      // on cherche le tag
+      if (isTag(TagNbr)) {
+        if(delayState(1000)) {
+              newState(TAG);
+        }
+      }
+      break;
+    
+    case TAG :
+      //on incrémente et on revient dans look for tag
+      TagNbr ++;
+      if (TagNbr <= 5) {
+        if(delayState(1000)) {
+              newState(LOOK_FOR_TAG);
+        }
+      }
+      else {
+        if(delayState(1000)) {
+            newState(STOP);
+        }
+      }
+      
+      break;
+
+    case STOP :
+    // on a trouvé tous les tags donc on s'arrête
+      cmd_robot(0,0);
+      break;
+
+    default:
+        break;
+  }
+}
+
+
+void newState(state new) {
+    state = new;
+}
+
+bool delayState (int delaytime) {
+    return ((millis()-last-millis)>= delay_time);
+}
