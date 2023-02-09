@@ -44,30 +44,37 @@ void loop() {
     }*/
 
     HUSKYLENSResult tag = getTag(8);
-    float asserv = -0.8;
-    int consigne = 160;
-    // The height we wish to reach
-    int HeightObjectif = 180;
-
+    float asservAP = -0.3, asservAI = -0.2, somErrA = 0, somErrL = 0, asservLI = 1.9, asservLP = 0.3;
     if(tag.ID != -1){
-      printResult(tag);
+      //printResult(tag);
+      int consigne = 160;
       int input = tag.xCenter;
       int erreur = consigne - input;
-      int output = (int)((float)(erreur * asserv)); //min(output, 255) max(ouput, -255)
+      int output = (int)((float)(erreur * asservAP)) + (int)(float)(somErrA * asservAI);
       output = max(output, (-255));
       output = min(output, 255);
-
-      cmd_robot(0, (output));
-      delay(100);
-
-      erreur = HeightObjectif - input;
-      output = (int)((float)(erreur * asserv));
-      output = max(output, (-255));
-      output = min(output, 255);
-
+      if(input == 160)
+        somErrA = 0;
+      else 
+        somErrA += erreur;
+      input = tag.height;
+      consigne = 180;
+      erreur = consigne - input;
+      int output2 = (int)((float)(erreur * asservLP)) + (int)(float)(somErrL * asservLI);
+      output2 = max(output2, -255);
+      output2 = min(output2, 255);
+      if(input >= 180)
+        somErrL = 0;
+      else 
+        somErrL += erreur;
+      cmd_robot(output2, output);
+      if(tag.height >= 180)
+        cmd_robot(0,0);
     }
-    else Serial.println("Mauvais tag");
-    cmd_robot(0, 0);
+    else {
+      Serial.println("Mauvais tag");
+      cmd_robot(0, 0);
+    }
 }
 
 void printResult(HUSKYLENSResult result){
