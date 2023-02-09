@@ -7,6 +7,10 @@
 /********** Constante - Variables globales *********/
 //HUSKYLENS huskylens; //HUSKYLENS green line >> SDA; blue line >> SCL
 TCC_Huskylens huskylens;
+float asservAP = -0.3, asservAI = 0.1, 
+        asservLP = 0.8, asservLI = 0,
+        somErrA = 0, somErrL = 0;
+
 
 /********** Functions *********/
 //void printResult(HUSKYLENSResult result);
@@ -14,6 +18,8 @@ TCC_Huskylens huskylens;
 //HUSKYLENSResult getTag(int indexTag);
 bool delayState (int delaytime);
 void newState(state_e newE);
+void followTag(int IDTag, int consigneCentre, int consigneDist);
+void followTagAA(int IDTag, int consigneCentre, int consigneDist);
 
 
 /********** Setup *********/
@@ -25,52 +31,40 @@ void setup() {
 
 /********** Loop *********/
 float asservAP = 0.3, asservAI = 0.3, somErrA = 0, somErrL = 0, asservLP = 0.7, asservLI = 0.1;
+//--------------------------------LOOP
 void loop() {
     stateMachine();
+    followTag(2, 160, 180);
+
 }
 
-// void printResult(HUSKYLENSResult result){
-//     if (result.command == COMMAND_RETURN_BLOCK){
-//         Serial.println(String()+F("Block:xCenter=")+result.xCenter+F(",yCenter=")+result.yCenter+F(",width=")+result.width+F(",height=")+result.height+F(",ID=")+result.ID);
-//     }
-//     else if (result.command == COMMAND_RETURN_ARROW){
-//         Serial.println(String()+F("Arrow:xOrigin=")+result.xOrigin+F(",yOrigin=")+result.yOrigin+F(",xTarget=")+result.xTarget+F(",yTarget=")+result.yTarget+F(",ID=")+result.ID);
-//     }
-//     else{
-//         Serial.println("Object unknown!");
-//     }
-// }
+void followTag(int IDTag, int consigneCentre, int consigneDist){// 2 160 190
+  HUSKYLENSResult tag = getTag(IDTag);
+  if(tag.ID != -1){
+    int input = tag.xCenter;
+    int erreur = consigneCentre - input;
+    int output = (int)((float)(erreur * asservAP));
+    output = max(output, (-255));
+    output = min(output, 255);
 
-
-
-// bool isTag(int indexTag){
-//     if(!huskylens.request()){
-//         return false;
-//     }
-//     while(huskylens.available()){
-//         HUSKYLENSResult result = huskylens.read();
-//         if(result.ID == indexTag){
-//           return true;
-//         }
-//     }
-//     return false;
-// } 
-
-HUSKYLENSResult getTag(int indexTag){
-    HUSKYLENSResult result;
-    if(!huskylens.request()){
-        result.ID = -1;
-        return result;
+    int input2 = tag.height;
+    int erreur2 = consigneDist - input2;
+    int output2 = (int)((float)(erreur2 * asservLP));
+  
+    output2 = max(output2, -255);
+    output2 = min(output2, 255);
+    if(input2 >= 180){
+      output2 = output2*(-1);
     }
-    while(huskylens.available()){
-        result = huskylens.read();
-        if(result.ID == indexTag){
-          return result;
-        }
-    }
-    result.ID = -1;
-    return result;
-} 
+    
+    
+    cmd_robot(output2, output);
+  }
+  else {
+    Serial.println("Mauvais tag");
+    cmd_robot(0, 0);
+  }
+}
 
 
 /********** State Machine *********/
