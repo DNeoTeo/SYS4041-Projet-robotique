@@ -1,6 +1,17 @@
 #include <HUSKYLENS.h>
 
-HUSKYLENS huskylens;
+class TCC_Huskylens {
+private:
+    HUSKYLENS huskylens;
+    HUSKYLENSResult result;
 
-bool isTag(int indexTag);
-HUSKYLENSResult getTag(int indexTag);
+public:
+    TCC_Huskylens();
+    void setup();
+    bool isTag(int indexTag);
+    HUSKYLENSResult getTag(int indexTag);
+    void printResult();
+};
+
+
+
