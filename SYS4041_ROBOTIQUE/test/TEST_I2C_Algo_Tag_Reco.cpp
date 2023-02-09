@@ -33,10 +33,12 @@ default:
 }
 
 
-void newState(state new) {
+void newState (state new) {
+    //Serial.println(new);
     state = new;
+    last.millis = millis();
 }
 
-bool delayState (int delaytime) {
-    return ((millis()-last-millis)>= delay_time);
+bool delayState(int delaytime){
+    return((millis().last.millis)>= delaytime);
 }

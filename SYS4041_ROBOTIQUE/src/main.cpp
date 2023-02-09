@@ -1,22 +1,22 @@
 #include <Arduino.h>
 #include <HUSKYLENS.h>
 #include <TCC-motor.h>
-//#include <TCC-Huskylens.h>
+#include <TCC-Huskylens.h>
 
 
-//--------------------------------Constante - Variables globales
+/********** Constante - Variables globales *********/
+//HUSKYLENS huskylens; //HUSKYLENS green line >> SDA; blue line >> SCL
 
-HUSKYLENS huskylens; //HUSKYLENS green line >> SDA; blue line >> SCL
 
-
-//--------------------------------HEADER
+/********** Functions *********/
 void printResult(HUSKYLENSResult result);
 bool isTag(int indexTag);
 HUSKYLENSResult getTag(int indexTag);
 bool delayState (int delaytime);
 void newState(state_e newE);
 
-//--------------------------------SETUP
+
+/********** Setup *********/
 void setup() {
     Serial.begin(115200);
     Wire.begin();
@@ -29,47 +29,11 @@ void setup() {
     }
     init_motorAB();
 }
-//--------------------------------LOOP
+
+/********** Loop *********/
 float asservAP = 0.3, asservAI = 0.3, somErrA = 0, somErrL = 0, asservLP = 0.7, asservLI = 0.1;
 void loop() {
-    HUSKYLENSResult tag = getTag(2);
-    if(tag.ID != -1){
-      //printResult(tag);
-      int consigne = 160;
-      int input = tag.xCenter;
-      int erreur = consigne - input;
-      int output = (int)((float)(erreur * asservAP)) + (int)(float)(somErrA * asservAI);
-      
-      if(input == 160)
-        somErrA = 0;
-      else 
-        somErrA += erreur;
-
-      int input2 = tag.height;
-      int consigne2 = 180;
-      int erreur2 = consigne2 - input2;
-      int output2 = (int)((float)(erreur2 * asservLP)) + (int)(float)(somErrL * asservLI);
-      //Serial.println(output2);Serial.println(" / ");Serial.println(output);
-      output = max(output, (-255));
-      output = min(output, 255);
-      output2 = max(output2, -255);
-      output2 = min(output2, 255);
-      if(input2 >= 180){
-        somErrL = 0;
-        output2 *= (-1);
-      }
-      else {
-        somErrL += erreur2;
-      }
-      
-      cmd_robot(output2, output);
-    }
-    else {
-      Serial.println("Mauvais tag");
-      cmd_robot(0, 0);
-    }
-
-
+    stateMachine();
 }
 
 void printResult(HUSKYLENSResult result){
@@ -84,27 +48,20 @@ void printResult(HUSKYLENSResult result){
     }
 }
 
-void newState(state_e newE) {
-    state = newE;
-    last_millis = millis();
-}
 
-bool delayState (int delaytime) {
-    return ((millis()-last_millis)>=delaytime);
-}
 
-bool isTag(int indexTag){
-    if(!huskylens.request()){
-        return false;
-    }
-    while(huskylens.available()){
-        HUSKYLENSResult result = huskylens.read();
-        if(result.ID == indexTag){
-          return true;
-        }
-    }
-    return false;
-} 
+// bool isTag(int indexTag){
+//     if(!huskylens.request()){
+//         return false;
+//     }
+//     while(huskylens.available()){
+//         HUSKYLENSResult result = huskylens.read();
+//         if(result.ID == indexTag){
+//           return true;
+//         }
+//     }
+//     return false;
+// } 
 
 HUSKYLENSResult getTag(int indexTag){
     HUSKYLENSResult result;
@@ -154,6 +111,7 @@ void stateMachine() {
     case START :
       //c'est vert, on démarre et on va dans look for tag
       TagNbr = 1;
+      huskylens.writeAlgorithm (ALGORITHM_TAG_RECOGNITION);
       if(delayState(1000)) {
           newState(LOOK_FOR_TAG);
       }
@@ -194,11 +152,12 @@ void stateMachine() {
   }
 }
 
-
-void newState(state new) {
+void newState (state new) {
+    //Serial.println(new);
     state = new;
+    last.millis = millis();
 }
 
-bool delayState (int delaytime) {
-    return ((millis()-last-millis)>= delay_time);
+bool delayState(int delaytime){
+    return((millis().last.millis)>= delaytime);
 }
