@@ -4,26 +4,28 @@
 //#include <TCC-Huskylens.h>
 
 
-//Constante - Variables globales
+//--------------------------------Constante - Variables globales
 
-HUSKYLENS huskylens;
+HUSKYLENS huskylens; //HUSKYLENS green line >> SDA; blue line >> SCL
 enum state_e {
     IDLE,
-    TURN,
+    STOP,
+    LEFT,
+    RIGHT,
     FORWARD
 };
 
 state_e state = IDLE;
 long last_millis;
 
-//HUSKYLENS green line >> SDA; blue line >> SCL
+//--------------------------------HEADER
 void printResult(HUSKYLENSResult result);
-
 bool isTag(int indexTag);
 HUSKYLENSResult getTag(int indexTag);
 bool delayState (int delaytime);
 void newState(state_e newE);
 
+//--------------------------------SETUP
 void setup() {
     Serial.begin(115200);
     Wire.begin();
@@ -36,32 +38,39 @@ void setup() {
     }
     init_motorAB();
 }
-
+//--------------------------------LOOP
+float asservAP = 0.3, asservAI = 0.3, somErrA = 0, somErrL = 0, asservLP = 0.7, asservLI = 0.1;
 void loop() {
-    HUSKYLENSResult tag = getTag(8);
-    float asservAP = -0.3, asservAI = -0.2, somErrA = 0, somErrL = 0, asservLI = 1.9, asservLP = 0.3;
+    HUSKYLENSResult tag = getTag(2);
     if(tag.ID != -1){
       //printResult(tag);
       int consigne = 160;
       int input = tag.xCenter;
       int erreur = consigne - input;
       int output = (int)((float)(erreur * asservAP)) + (int)(float)(somErrA * asservAI);
-      output = max(output, (-255));
-      output = min(output, 255);
+      
       if(input == 160)
         somErrA = 0;
       else 
         somErrA += erreur;
-      input = tag.height;
-      consigne = 180;
-      erreur = consigne - input;
-      int output2 = (int)((float)(erreur * asservLP)) + (int)(float)(somErrL * asservLI);
+
+      int input2 = tag.height;
+      int consigne2 = 180;
+      int erreur2 = consigne2 - input2;
+      int output2 = (int)((float)(erreur2 * asservLP)) + (int)(float)(somErrL * asservLI);
+      //Serial.println(output2);Serial.println(" / ");Serial.println(output);
+      output = max(output, (-255));
+      output = min(output, 255);
       output2 = max(output2, -255);
       output2 = min(output2, 255);
-      if(input >= 180)
+      if(input2 >= 180){
         somErrL = 0;
-      else 
-        somErrL += erreur;
+        output2 *= (-1);
+      }
+      else {
+        somErrL += erreur2;
+      }
+      
       cmd_robot(output2, output);
     }
     else {
@@ -69,7 +78,7 @@ void loop() {
       cmd_robot(0, 0);
     }
 
-  switch (state)
+  /*switch (state)
   {
       case IDLE :
           cmd_robot(0,0);
@@ -90,7 +99,7 @@ void loop() {
 
       default:
           break;
-  }
+  }*/
 
 
 
