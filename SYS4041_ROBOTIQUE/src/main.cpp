@@ -7,12 +7,22 @@
 //Constante - Variables globales
 
 HUSKYLENS huskylens;
+enum state_e {
+    IDLE,
+    TURN,
+    FORWARD
+};
+
+state_e state = IDLE;
+long last_millis;
+
 //HUSKYLENS green line >> SDA; blue line >> SCL
 void printResult(HUSKYLENSResult result);
 
 bool isTag(int indexTag);
 HUSKYLENSResult getTag(int indexTag);
-int posTag(int indexTag);
+bool delayState (int delaytime);
+void newState(state_e newE);
 
 void setup() {
     Serial.begin(115200);
@@ -28,21 +38,6 @@ void setup() {
 }
 
 void loop() {
-    /*for(int i=0; i<256; i+=10){
-      for(int j=0; j<256; j+=100)
-        cmd_robot(i,j);
-    }*/
-    /*for (int i=0; i<256; i+=10){
-        cmd_robot(i, i);
-        //Serial.println(i);
-        delay(200);
-    }
-    
-    for (int i=0; i>-256; i-=10){
-        cmd_robot(i, i);
-        delay(200);
-    }*/
-
     HUSKYLENSResult tag = getTag(8);
     float asservAP = -0.3, asservAI = -0.2, somErrA = 0, somErrL = 0, asservLI = 1.9, asservLP = 0.3;
     if(tag.ID != -1){
@@ -68,13 +63,39 @@ void loop() {
       else 
         somErrL += erreur;
       cmd_robot(output2, output);
-      if(tag.height >= 180)
-        cmd_robot(0,0);
     }
     else {
       Serial.println("Mauvais tag");
       cmd_robot(0, 0);
     }
+
+  switch (state)
+  {
+      case IDLE :
+          cmd_robot(0,0);
+          if (isTag(1)) {
+              newState(TURN);
+          }
+          if(isTag(2)) {
+              newState(FORWARD);
+          }
+          break;
+
+      case TURN :
+          cmd_robot(0,255);
+          if(delayState(1000)) {
+              newState(IDLE);
+          }
+          break;
+
+      default:
+          break;
+  }
+
+
+
+
+
 }
 
 void printResult(HUSKYLENSResult result){
@@ -89,8 +110,13 @@ void printResult(HUSKYLENSResult result){
     }
 }
 
-int posTag(int indexTag){
-  
+void newState(state_e newE) {
+    state = newE;
+    last_millis = millis();
+}
+
+bool delayState (int delaytime) {
+    return ((millis()-last_millis)>=delaytime);
 }
 
 bool isTag(int indexTag){
