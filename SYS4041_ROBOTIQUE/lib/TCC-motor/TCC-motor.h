@@ -1,3 +1,7 @@
+/********** TCC-Motor class **********/
+/* This class regroup all the functions needed to control the motors.
+ */
+
 #ifndef MOTOR_H
 #define MOTOR_H
 
@@ -9,14 +13,21 @@ class TCC_Motor {
         int pinMotorPWM_B = 9;
 
     public:
+        long last_millis;
+
         TCC_Motor();
-        void init_motorAB();
+        void setup();
         void motorA_setDir(bool dir);
         void motorA_setPWM(int pwm);
         void motorB_setDir(bool dir);
         void motorB_setPWM(int pwm);
         void cmd_motors(int pwmD, int pwmG);
         void cmd_robot(int lineaire, int angulaire);
+        
+        // To delete if not used
+        //bool delayMove(int delaytime);
+
+
 };
 
 #endif

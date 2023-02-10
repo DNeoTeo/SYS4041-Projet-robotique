@@ -1,18 +1,18 @@
 #include <Arduino.h>
-//#include <HUSKYLENS.h>
 #include "TCC-motor.h"
 #include "TCC-Huskylens.h"
 #include "TCC-Tag.h"
 
 
-/********** Constante - Variables globales *********/
-//HUSKYLENS huskylens; //HUSKYLENS green line >> SDA; blue line >> SCL
+/********** Constante - Variables globales **********/
+// Variables
 TCC_Huskylens huskylens;
 TCC_Motor motor;
-TCC_Tag tag;
+TCC_Tag tags;
+
 #define MAX_HEIGHT_ARUCO 170
 #define MAX_NB_TAG 7
-// Variables
+
   enum state_e {
     IDLE,
     START,
@@ -26,31 +26,34 @@ TCC_Tag tag;
   long last_millis;
   int TagNbr = 0;
 
-/********** Functions *********/
+/********** Functions **********/
 bool delayState (int delaytime);
 void newState(state_e newE);
+// void followTag(int IDTag, int consigneCentre, int consigneDist);
 
 
 void stateMachine();
 
-/********** Setup *********/
+/********** Setup **********/
 void setup() {
     Serial.begin(115200);
     huskylens.setup();
-    motor.init_motorAB();
+    motor.setup();
+    tags.setup(huskylens, motor);
 }
 
-/********** Loop *********/
+/********** Loop **********/
 void loop() {
     stateMachine();
 }
 
 
-/********** State Machine *********/
+/********** State Machine **********/
 void stateMachine() {
   // Switch case
   switch (state)
   {
+    // Start state the robot is looking for the color
     case IDLE :
       //faut checker la couleur si c'est vert on va dans START
       motor.cmd_robot(0,0);
@@ -59,48 +62,54 @@ void stateMachine() {
       }
       break;
 
+    // The robot has found the right color, the race can start
     case START :
-      //c'est vert, on démarre et on va dans look for tag
+      // We setup everything for the tag search
+      huskylens.huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
+      // First the robot look for the tag n°1
       TagNbr = 1;
       motor.cmd_robot(255,0);
       if(delayState(800)) {
         motor.cmd_robot(0,0);
       }
-      huskylens.huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
       if(delayState(1000)) {
         newState(TAG);
       }
       break;
     
+    // The robot is looking around if it can find the right tag
     case LOOK_FOR_TAG :
-      // on cherche le tag
       motor.cmd_robot(0, 60);
       if(huskylens.isTag(TagNbr)) {
         newState(FOLLOW_TAG);
       }
       break;
     
+    // Once the right tag is found the robot will go towards it
     case FOLLOW_TAG : 
+      // Did the robot found all the tags ? 
+      //If no the robot continue to look for the other
       if (TagNbr <= MAX_NB_TAG){
-        followTag(TagNbr, 160, MAX_HEIGHT_ARUCO+30);
+        tags.followTag(TagNbr, 160, MAX_HEIGHT_ARUCO+30);
         int heightTAG = huskylens.getTag(TagNbr).height;
         //Serial.print("HEIGHT= ");
-      //Serial.println(heightTAG);
+        Serial.println(heightTAG);
         if(heightTAG >= 140){
           TagNbr ++;
           newState(TAG);
         }
       }
+      // If yes, the robot go to the state "stop"
       else{
         newState(STOP);
       }
     break;
 
+    // Which tag is the robot looking for ?
     case TAG :
-      //on incrémente et on revient dans look for tag
-      //Serial.print("Tag nb= ");
-      //Serial.println(TagNbr);
-       switch (TagNbr)
+      // Each case is specifically created to optimise the direction of the robot 
+      // When looking for the wanted tag
+      switch (TagNbr)
       {
         case 1:
           motor.cmd_robot(255,0);
@@ -138,21 +147,24 @@ void stateMachine() {
       }      
       break;
 
+    // The robot found all the tag, the robot stop
     case STOP :
-    // on a trouvé tous les tags donc on s'arrête
       motor.cmd_robot(0,0);
       break;
+
 
     default:
         break;
   }
 }
 
+/********** Function to change the state **********/
 void newState (state_e newE) {
     state = newE;
     last_millis = millis();
 }
 
+/********** Delay for the state change - this delay doesn't pause the robot **********/
 bool delayState(int delaytime){
     return((int)(millis()-last_millis)>= delaytime);
 }
