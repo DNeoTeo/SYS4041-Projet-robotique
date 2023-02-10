@@ -33,7 +33,6 @@ void newState(state_e newE);
 void followTag(int IDTag, int consigneCentre, int consigneDist);
 void followTagAA(int IDTag, int consigneCentre, int consigneDist);
 void stateMachine();
-bool checkcolor();
 
 /********** Setup *********/
 void setup() {
@@ -87,7 +86,7 @@ void stateMachine() {
     case IDLE :
       //faut checker la couleur si c'est vert on va dans START
       cmd_robot(0,0);
-      if (checkcolor()) {
+      if (huskylens.checkcolor()) {
         if(delayState(1000)) {
           newState(START);
         }
@@ -149,8 +148,4 @@ void newState (state_e newE) {
 
 bool delayState(int delaytime){
     return((int)(millis()-last_millis)>= delaytime);
-}
-
-bool checkcolor(){
-  return true;
 }

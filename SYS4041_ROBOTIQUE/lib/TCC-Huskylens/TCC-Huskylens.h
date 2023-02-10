@@ -12,6 +12,7 @@ public:
     bool isTag(int indexTag);
     HUSKYLENSResult getTag(int indexTag);
     void printResult();
+    bool checkcolor();
 };
 
 
