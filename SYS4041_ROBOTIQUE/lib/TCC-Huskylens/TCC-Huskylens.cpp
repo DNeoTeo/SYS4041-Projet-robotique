@@ -1,3 +1,5 @@
+/********** TCC-Huskylens class **********/
+
 #include "TCC-Huskylens.h"
 
 TCC_Huskylens::TCC_Huskylens() {}
@@ -51,10 +53,6 @@ void TCC_Huskylens::printResult(){
     else {
         Serial.println("Object unknown!");
     }
-}
-
-bool TCC_Huskylens::checkcolor() {
-    return true;
 }
 
 bool TCC_Huskylens::isColor(int indexColor){

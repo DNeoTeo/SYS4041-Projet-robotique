@@ -1,16 +1,16 @@
 #include <Arduino.h>
-#include <HUSKYLENS.h>
-#include <TCC-motor.h>
-#include <TCC-Huskylens.h>
+//#include <HUSKYLENS.h>
+#include "TCC-motor.h"
+#include "TCC-Huskylens.h"
+#include "TCC-Tag.h"
 
 
 /********** Constante - Variables globales *********/
 //HUSKYLENS huskylens; //HUSKYLENS green line >> SDA; blue line >> SCL
 TCC_Huskylens huskylens;
 TCC_Motor motor;
-float asservAP = -0.3, asservAI = 0.1, 
-        asservLP = 0.8, asservLI = 0,
-        somErrA = 0, somErrL = 0;
+TCC_Tag tag;
+
 #define MAX_HEIGHT_ARUCO 180
 // Variables
   enum state_e {
@@ -26,13 +26,10 @@ float asservAP = -0.3, asservAI = 0.1,
   int TagNbr = 0;
 
 /********** Functions *********/
-//void printResult(HUSKYLENSResult result);
-//bool isTag(int indexTag);
-//HUSKYLENSResult getTag(int indexTag);
 bool delayState (int delaytime);
 void newState(state_e newE);
-void followTag(int IDTag, int consigneCentre, int consigneDist);
-void followTagAA(int IDTag, int consigneCentre, int consigneDist);
+
+
 void stateMachine();
 
 /********** Setup *********/
@@ -45,37 +42,8 @@ void setup() {
 /********** Loop *********/
 void loop() {
     stateMachine();
-    followTag(2, 160, 180);
+    tag.followTag(2, 160, 180);
 
-}
-
-/********** Asservissement poursuite de Tag *********/
-void followTag(int IDTag, int consigneCentre, int consigneDist){// 2 160 190
-  HUSKYLENSResult tag = huskylens.getTag(IDTag);
-  if(tag.ID != -1){
-    int input = tag.xCenter;
-    int erreur = consigneCentre - input;
-    int output = (int)((float)(erreur * asservAP));
-    output = max(output, (-255));
-    output = min(output, 255);
-
-    int input2 = tag.height;
-    int erreur2 = consigneDist - input2;
-    int output2 = (int)((float)(erreur2 * asservLP));
-  
-    output2 = max(output2, -255);
-    output2 = min(output2, 255);
-    if(input2 >= consigneDist){
-      output2 = output2*(-1);
-    }
-    
-    
-    motor.cmd_robot(output2, output);
-  }
-  else {
-    Serial.println("Mauvais tag");
-    motor.cmd_robot(0, 0);
-  }
 }
 
 
@@ -87,7 +55,7 @@ void stateMachine() {
     case IDLE :
       //faut checker la couleur si c'est vert on va dans START
       motor.cmd_robot(0,0);
-      if (huskylens.checkcolor()) {
+      if (huskylens.isColor(2)) {
         newState(START);
       }
       break;
@@ -107,7 +75,7 @@ void stateMachine() {
     
     case LOOK_FOR_TAG :
       // on cherche le tag
-      cmd_robot(0, 0);
+      motor.cmd_robot(0, 0);
       if(huskylens.isTag(TagNbr) && delayState(100)) {
         newState(TAG);
       }
@@ -125,9 +93,9 @@ void stateMachine() {
       default:
         break;
       }
-      followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
+      tag.followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
       if (TagNbr <= 7) {
-        followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
+        tag.followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
         if(huskylens.getTag(TagNbr).height >= MAX_HEIGHT_ARUCO){
           newState(LOOK_FOR_TAG);
           TagNbr ++;
