@@ -1,4 +1,4 @@
-#include <Arduino.h>
+/*#include <Arduino.h>
 #include <HUSKYLENS.h>
 #include <TCC-motor.h>
 #include <TCC-Huskylens.h>
@@ -154,3 +154,65 @@ bool delayState(int delaytime){
 bool checkcolor(){
   return true;
 }
+*/=
+////////////////////////DETECT THE COLOR//////////////////////////////////////
+/*
+#include <Arduino.h>
+#include <HUSKYLENS.h>
+#include <motor.h>
+
+
+HUSKYLENS huskylens;
+bool isColor(int indexColor);
+void printResult(HUSKYLENSResult result);
+
+void setup() {
+    Serial.begin(115200);
+    Wire.begin();
+    while (!huskylens.begin(Wire))
+    {
+        Serial.println(F("Begin failed!"));
+        Serial.println(F("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)"));
+        Serial.println(F("2.Please recheck the connection."));
+        delay(100);
+    }
+}
+
+void newState(state new) {
+    state = new;
+}
+
+bool isColor(int indexColor){
+    if(!huskylens.request()){
+        return false;
+    }
+    while(huskylens.available()){
+        HUSKYLENSResult result = huskylens.read();
+        if(result.ID == indexColor){
+          return true;
+        }
+    }
+    return false;
+} */ 
+///////////////////////////LEARNING/////////////////////////////////////////////////////////
+#include <Arduino.h>
+#include <HUSKYLENS.h>
+
+//Constante - Variables globales
+
+HUSKYLENS huskylens;
+//HUSKYLENS green line >> SDA; blue line >> SCL
+void printResult(HUSKYLENSResult result);
+
+void setup() {
+    Serial.begin(115200);
+    Wire.begin();
+    while (!huskylens.begin(Wire))
+    {
+        Serial.println(F("Begin failed!"));
+        Serial.println(F("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)"));
+        Serial.println(F("2.Please recheck the connection."));
+        delay(100);
+    }
+}
+
