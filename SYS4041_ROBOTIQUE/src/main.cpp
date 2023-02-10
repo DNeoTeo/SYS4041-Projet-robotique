@@ -7,6 +7,7 @@
 /********** Constante - Variables globales *********/
 //HUSKYLENS huskylens; //HUSKYLENS green line >> SDA; blue line >> SCL
 TCC_Huskylens huskylens;
+TCC_Motor motor;
 float asservAP = -0.3, asservAI = 0.1, 
         asservLP = 0.8, asservLI = 0,
         somErrA = 0, somErrL = 0;
@@ -38,7 +39,7 @@ void stateMachine();
 void setup() {
     Serial.begin(115200);
     huskylens.setup();
-    init_motorAB();
+    motor.init_motorAB();
 }
 
 /********** Loop *********/
@@ -69,11 +70,11 @@ void followTag(int IDTag, int consigneCentre, int consigneDist){// 2 160 190
     }
     
     
-    cmd_robot(output2, output);
+    motor.cmd_robot(output2, output);
   }
   else {
     Serial.println("Mauvais tag");
-    cmd_robot(0, 0);
+    motor.cmd_robot(0, 0);
   }
 }
 
@@ -85,8 +86,8 @@ void stateMachine() {
   {
     case IDLE :
       //faut checker la couleur si c'est vert on va dans START
-      cmd_robot(0,0);
-      if (checkcolor()) {
+      motor.cmd_robot(0,0);
+      if (huskylens.checkcolor()) {
         newState(START);
       }
       break;
@@ -94,9 +95,9 @@ void stateMachine() {
     case START :
       //c'est vert, on démarre et on va dans look for tag
       TagNbr = 7;
-      cmd_robot(255,0);
+      motor.cmd_robot(255,0);
       if(delayState(800)) {
-        cmd_robot(0,0);
+        motor.cmd_robot(0,0);
       }
       huskylens.huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
       if(delayState(1000)) {
@@ -106,7 +107,7 @@ void stateMachine() {
     
     case LOOK_FOR_TAG :
       // on cherche le tag
-      cmd_robot(0, 255);
+      motor.cmd_robot(0, 255);
       if(huskylens.isTag(TagNbr)) {
         newState(TAG);
       }
@@ -130,7 +131,7 @@ void stateMachine() {
 
     case STOP :
     // on a trouvé tous les tags donc on s'arrête
-      cmd_robot(0,0);
+      motor.cmd_robot(0,0);
       break;
 
     default:

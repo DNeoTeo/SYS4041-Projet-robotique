@@ -1,8 +1,6 @@
 #include "TCC-Huskylens.h"
 
-TCC_Huskylens::TCC_Huskylens() {
-
-}
+TCC_Huskylens::TCC_Huskylens() {}
 
 void TCC_Huskylens::setup() {
     Wire.begin();
