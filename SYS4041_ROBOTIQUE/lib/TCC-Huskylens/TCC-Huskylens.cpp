@@ -53,7 +53,7 @@ void TCC_Huskylens::printResult(){
     }
 }
 
-bool TCC_Huskylens::checkcolor() {
+bool TCC_Huskylens::isColor() {
     return true;
 }
 
