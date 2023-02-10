@@ -1,12 +1,21 @@
+/********** TCC-Tag class **********/
+
 #include "TCC-Tag.h"
 
+/********** Constructor **********/
+TCC_Tag::TCC_Tag() {
 
-TCC_Tag::TCC_Tag(TCC_Huskylens _huskylens, TCC_Motor _motor) {
-  huskylens = _huskylens;
-  motor = _motor;
 }
 
-/********** Asservissement poursuite de Tag *********/
+void TCC_Tag::setup(TCC_Huskylens _huskylens, TCC_Motor _motor) {
+  huskylens = _huskylens;
+  huskylens.setup();
+  motor = _motor;
+  motor.setup();
+}
+
+
+/********** Asservissement poursuite de Tag **********/
 void TCC_Tag::followTag(int IDTag, int consigneCentre, int consigneDist){// 2 160 190
   
   HUSKYLENSResult tag = huskylens.getTag(IDTag);
@@ -34,3 +43,15 @@ void TCC_Tag::followTag(int IDTag, int consigneCentre, int consigneDist){// 2 16
     motor.cmd_robot(0, 0);
   }
 }
+
+// void TCC_Tag::Tag_1() {
+//   motor.last_millis = millis();
+//   motor.cmd_robot(255,0);
+//   if (motor.delayMove(2000)) {}
+//   motor.cmd_robot();
+// }
+
+// void TCC_Tag::Tag_2() {
+//   motor.last_millis = millis();
+//   motor.cmd_robot(50,200);
+// }

@@ -10,8 +10,8 @@ TCC_Huskylens huskylens;
 TCC_Motor motor;
 TCC_Tag tags;
 
-#define MAX_HEIGHT_ARUCO 170
-#define MAX_NB_TAG 7
+#define MAX_HEIGHT_ARUCO 200
+#define MAX_NB_TAG 6
 
   enum state_e {
     IDLE,
@@ -20,7 +20,8 @@ TCC_Tag tags;
     STOP_LOOK,
     FOLLOW_TAG,
     TAG,
-    STOP
+    STOP,
+    VICTORY
   };
 
   state_e state = IDLE;
@@ -56,9 +57,11 @@ void stateMachine() {
     // Start state the robot is looking for the color
     case IDLE :
       //faut checker la couleur si c'est vert on va dans START
+      huskylens.huskylens.writeAlgorithm(ALGORITHM_COLOR_RECOGNITION);
       motor.cmd_robot(0,0);
-      if (true) { //huskylens.isColor(1)
-        newState(START);
+      if (huskylens.isColor(1)) {
+          delay(1700);
+          newState(START);
       }
       break;
 
@@ -68,10 +71,7 @@ void stateMachine() {
       huskylens.huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
       // First the robot look for the tag n°1
       TagNbr = 1;
-      
-      if(delayState(1000)) {
-        newState(TAG);
-      }
+      newState(TAG);
       break;
     
     // The robot is looking around if it can find the right tag
@@ -103,18 +103,17 @@ void stateMachine() {
       // Did the robot found all the tags ? 
       //If no the robot continue to look for the other
       if (TagNbr <= MAX_NB_TAG){
-        tags.followTag(TagNbr, 160, MAX_HEIGHT_ARUCO+30);
-        int heightTAG = huskylens.getTag(TagNbr).height;
-        //Serial.print("HEIGHT= ");
-        Serial.println(heightTAG);
+        tags.followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
+        int heightTAG = huskylens.getTag(TagNbr).height;        
         if(heightTAG >= 140){
+          Serial.println(TagNbr);
           TagNbr ++;
           newState(TAG);
         }
       }
       // If yes, the robot go to the state "stop"
       else{
-        newState(STOP);
+        newState(VICTORY);
       }
     break;
 
@@ -126,7 +125,7 @@ void stateMachine() {
       {
         case 1:
           motor.cmd_robot(255,0);
-          if(delayState(1700)){
+          if(delayState(2000)){
             newState(STOP_LOOK);
           }
           break;
@@ -138,7 +137,7 @@ void stateMachine() {
           break;
         case 3:
           motor.cmd_robot(50,200);
-          if(delayState(400)){
+          if(delayState(350)){
             newState(STOP_LOOK);
           }
           break;
@@ -156,30 +155,34 @@ void stateMachine() {
           break;
         case 6:
           motor.cmd_robot(50,-200);
-          if(delayState(300)){
-            newState(STOP_LOOK);
-          }
-          break;
-        case 7:
-        motor.cmd_robot(0,-200);
-        if(delayState(300)){
-          motor.cmd_robot(0,200);
-          if(delayState(600)){
-            motor.cmd_robot(0,-200);
-            if(delayState(900)){
-              motor.cmd_robot(0,-200);
-              if(delayState(1200)){
-                newState(STOP);
-              }
+          if(delayState(280)){
+            motor.cmd_robot(255,0);
+            if(delayState(1000)){
+              newState(STOP_LOOK);
             }
           }
-        }
+          break;
         default:
-          newState(STOP);
+          newState(STOP_LOOK);
           break;
       }      
       break;
 
+    case VICTORY:
+      motor.cmd_robot(0,-200);
+      if(delayState(300)){
+        motor.cmd_robot(0,200);
+        if(delayState(600)){
+          motor.cmd_robot(0,-200);
+          if(delayState(900)){
+            motor.cmd_robot(0,-200);
+            if(delayState(1200)){
+              newState(STOP);
+            }
+          }
+        }
+      }
+      break;
     // The robot found all the tag, the robot stop
     case STOP :
       motor.cmd_robot(0,0);

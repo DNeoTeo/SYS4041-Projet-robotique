@@ -5,6 +5,7 @@
  * These function are combining functions from TCC-Motor and TCC-Huskylens.
  * All the function directly linked with the use of the lens are in the librairy TCC-Huskylens.
  */
+
 #ifndef TAG_H
 #define TAG_H
 
@@ -19,11 +20,12 @@ class TCC_Tag {
         TCC_Motor motor;
 
         float asservAP = -0.3, asservAI = 0.1;
-        float asservLP = 0.9, asservLI = 0;
+        float asservLP = 1.1, asservLI = 0;
         float somErrA = 0, somErrL = 0;
 
     public:
-        TCC_Tag(TCC_Huskylens _huskylens, TCC_Motor _motor);
+        TCC_Tag();
+        void setup(TCC_Huskylens _huskylens, TCC_Motor _motor);
         void followTag(int IDTag, int consigneCentre, int consigneDist);
 
 };
