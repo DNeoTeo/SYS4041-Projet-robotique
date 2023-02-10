@@ -1,3 +1,6 @@
+#ifndef MOTOR_H
+#define MOTOR_H
+
 class TCC_Motor {
     private:
         int pinMotorDir_A = 2;
@@ -16,4 +19,5 @@ class TCC_Motor {
         void cmd_robot(int lineaire, int angulaire);
 };
 
+#endif
 

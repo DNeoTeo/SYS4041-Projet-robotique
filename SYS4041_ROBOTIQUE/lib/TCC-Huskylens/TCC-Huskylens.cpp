@@ -1,3 +1,5 @@
+/********** TCC-Huskylens class **********/
+
 #include "TCC-Huskylens.h"
 
 TCC_Huskylens::TCC_Huskylens() {}
