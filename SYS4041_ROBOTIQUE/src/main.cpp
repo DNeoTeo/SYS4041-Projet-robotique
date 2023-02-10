@@ -48,7 +48,7 @@ void loop() {
     stateMachine();
 }
 
-
+int tmp = 0;
 /********** State Machine **********/
 void stateMachine() {
   // Switch case
@@ -92,6 +92,7 @@ void stateMachine() {
       break;
 
     case STOP_LOOK : 
+      tmp = 1;
       motor.cmd_robot(0, 0);
        if(delayState(300)){
           newState(LOOK_FOR_TAG);
@@ -107,7 +108,7 @@ void stateMachine() {
         if(huskylens.getTag(TagNbr).height >= 140){
           
           TagNbr ++;
-          if (TagNbr < MAX_NB_TAG){
+          if (TagNbr <= MAX_NB_TAG){
             newState(TAG);
           }
           // If yes, the robot go to the state "stop"
@@ -155,13 +156,20 @@ void stateMachine() {
           }
           break;
         case 6:
-          motor.cmd_robot(50,-200);
-          if(delayState(280)){
+          if(tmp == 1){
+            motor.cmd_robot(50,-200);
+            if(delayState(280)){
+              tmp = 2;
+              last_millis = millis();
+            }
+          }
+          else if(tmp == 2){
             motor.cmd_robot(255,0);
             if(delayState(1000)){
               newState(STOP_LOOK);
             }
           }
+          
           break;
         default:
           newState(STOP_LOOK);
@@ -175,17 +183,32 @@ void stateMachine() {
       break;
 
     case VICTORY_DANCE:
-      motor.cmd_robot(0,200);
-      if(delayState(300)){
+      if(tmp == 1){
+        motor.cmd_robot(0,200);
+        if(delayState(500)){
+          tmp = 2;
+          last_millis = millis();
+        }
+      }
+      else if(tmp == 2){
         motor.cmd_robot(0,-200);
-        if(delayState(600)){
-          motor.cmd_robot(0,200);
-          if(delayState(900)){
-            motor.cmd_robot(0,-200);
-            if(delayState(1200)){
-              newState(STOP);
-            }
-          }
+        if(delayState(500)){
+          tmp = 3;
+          last_millis = millis();
+        }
+      }
+      else if(tmp == 3){
+        motor.cmd_robot(0,200);
+        if(delayState(500)){
+          tmp = 4;
+          last_millis = millis();
+        }
+      }
+      else if(tmp == 4){
+        motor.cmd_robot(0,-200);
+        if(delayState(500)){
+          tmp = 5;
+          newState(STOP);
         }
       }
       break;
