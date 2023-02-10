@@ -19,7 +19,7 @@ void TCC_Tag::setup(TCC_Huskylens _huskylens, TCC_Motor _motor) {
 void TCC_Tag::followTag(int IDTag, int consigneCentre, int consigneDist){// 2 160 190
   
   HUSKYLENSResult tag = huskylens.getTag(IDTag);
-  Serial.println(tag.ID);
+  //Serial.println(tag.ID);
   if(tag.ID != -1){
     int input = tag.xCenter;
     int erreur = consigneCentre - input;

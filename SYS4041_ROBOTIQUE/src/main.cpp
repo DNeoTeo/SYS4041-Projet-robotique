@@ -102,19 +102,21 @@ void stateMachine() {
     case FOLLOW_TAG : 
       // Did the robot found all the tags ? 
       //If no the robot continue to look for the other
-      if (TagNbr <= MAX_NB_TAG){
+      Serial.println(TagNbr);
         tags.followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
         int heightTAG = huskylens.getTag(TagNbr).height;        
         if(heightTAG >= 140){
-          Serial.println(TagNbr);
+          
           TagNbr ++;
-          newState(TAG);
+          if (TagNbr < MAX_NB_TAG){
+            newState(TAG);
+          }
+          // If yes, the robot go to the state "stop"
+          else{
+            newState(VICTORY);
+          }
         }
-      }
-      // If yes, the robot go to the state "stop"
-      else{
-        newState(VICTORY);
-      }
+      
     break;
 
     // Which tag is the robot looking for ?
@@ -169,8 +171,8 @@ void stateMachine() {
       break;
 
     case VICTORY:
-      motor.cmd_robot(0,-200);
-      if(delayState(300)){
+      motor.cmd_robot(0,255);
+      /*if(delayState(300)){
         motor.cmd_robot(0,200);
         if(delayState(600)){
           motor.cmd_robot(0,-200);
@@ -181,7 +183,7 @@ void stateMachine() {
             }
           }
         }
-      }
+      }*/
       break;
     // The robot found all the tag, the robot stop
     case STOP :
