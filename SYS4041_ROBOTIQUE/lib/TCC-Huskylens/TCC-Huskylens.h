@@ -2,10 +2,11 @@
 
 class TCC_Huskylens {
 private:
-    HUSKYLENS huskylens;
     HUSKYLENSResult result;
 
 public:
+    HUSKYLENS huskylens;
+
     TCC_Huskylens();
     void setup();
     bool isTag(int indexTag);

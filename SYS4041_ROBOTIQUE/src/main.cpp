@@ -101,7 +101,7 @@ void stateMachine() {
       if(delayState(800)) {
         cmd_robot(0,0);
       }
-      //huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
+      huskylens.huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
       if(delayState(1000)) {
         newState(LOOK_FOR_TAG);
       }
