@@ -10,7 +10,7 @@ TCC_Huskylens huskylens;
 float asservAP = -0.3, asservAI = 0.1, 
         asservLP = 0.8, asservLI = 0,
         somErrA = 0, somErrL = 0;
-#define MAX_HEIGHT_ARUCO 185
+#define MAX_HEIGHT_ARUCO 180
 // Variables
   enum state_e {
     IDLE,
@@ -33,7 +33,6 @@ void newState(state_e newE);
 void followTag(int IDTag, int consigneCentre, int consigneDist);
 void followTagAA(int IDTag, int consigneCentre, int consigneDist);
 void stateMachine();
-bool checkcolor();
 
 /********** Setup *********/
 void setup() {
@@ -88,15 +87,13 @@ void stateMachine() {
       //faut checker la couleur si c'est vert on va dans START
       cmd_robot(0,0);
       if (checkcolor()) {
-        if(delayState(1000)) {
-          newState(START);
-        }
+        newState(START);
       }
       break;
 
     case START :
       //c'est vert, on démarre et on va dans look for tag
-      TagNbr = 1;
+      TagNbr = 7;
       cmd_robot(255,0);
       if(delayState(800)) {
         cmd_robot(0,0);
@@ -109,6 +106,7 @@ void stateMachine() {
     
     case LOOK_FOR_TAG :
       // on cherche le tag
+      cmd_robot(0, 255);
       if(huskylens.isTag(TagNbr)) {
         newState(TAG);
       }
@@ -117,17 +115,15 @@ void stateMachine() {
     
     case TAG :
       //on incrémente et on revient dans look for tag
-      if (TagNbr <= 6) {
+      if (TagNbr <= 7) {
         followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
         if(huskylens.getTag(TagNbr).height >= MAX_HEIGHT_ARUCO){
           newState(LOOK_FOR_TAG);
+          TagNbr ++;
         }
-        TagNbr ++;
       }
       else {
-        if(delayState(1000)) {
-            newState(STOP);
-        }
+          newState(STOP);
       }
       
       break;
@@ -150,69 +146,3 @@ void newState (state_e newE) {
 bool delayState(int delaytime){
     return((int)(millis()-last_millis)>= delaytime);
 }
-
-bool checkcolor(){
-  return true;
-}
-*/=
-////////////////////////DETECT THE COLOR//////////////////////////////////////
-/*
-#include <Arduino.h>
-#include <HUSKYLENS.h>
-#include <motor.h>
-
-
-HUSKYLENS huskylens;
-bool isColor(int indexColor);
-void printResult(HUSKYLENSResult result);
-
-void setup() {
-    Serial.begin(115200);
-    Wire.begin();
-    while (!huskylens.begin(Wire))
-    {
-        Serial.println(F("Begin failed!"));
-        Serial.println(F("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)"));
-        Serial.println(F("2.Please recheck the connection."));
-        delay(100);
-    }
-}
-
-void newState(state new) {
-    state = new;
-}
-
-bool isColor(int indexColor){
-    if(!huskylens.request()){
-        return false;
-    }
-    while(huskylens.available()){
-        HUSKYLENSResult result = huskylens.read();
-        if(result.ID == indexColor){
-          return true;
-        }
-    }
-    return false;
-} */ 
-///////////////////////////LEARNING/////////////////////////////////////////////////////////
-#include <Arduino.h>
-#include <HUSKYLENS.h>
-
-//Constante - Variables globales
-
-HUSKYLENS huskylens;
-//HUSKYLENS green line >> SDA; blue line >> SCL
-void printResult(HUSKYLENSResult result);
-
-void setup() {
-    Serial.begin(115200);
-    Wire.begin();
-    while (!huskylens.begin(Wire))
-    {
-        Serial.println(F("Begin failed!"));
-        Serial.println(F("1.Please recheck the \"Protocol Type\" in HUSKYLENS (General Settings>>Protocol Type>>I2C)"));
-        Serial.println(F("2.Please recheck the connection."));
-        delay(100);
-    }
-}
-

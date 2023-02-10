@@ -54,3 +54,7 @@ void TCC_Huskylens::printResult(){
         Serial.println("Object unknown!");
     }
 }
+
+bool TCC_Huskylens::checkcolor() {
+    return true;
+}
