@@ -1,9 +1,12 @@
-/********** TCC-Huskylens class **********/
+/*********** TCC-Huskylens class ***********/
 
 #include "TCC-Huskylens.h"
 
+/********** Constructor **********/
 TCC_Huskylens::TCC_Huskylens() {}
 
+
+/********** Setup and connect the camera **********/
 void TCC_Huskylens::setup() {
     Wire.begin();
     while (!huskylens.begin(Wire))
@@ -15,6 +18,8 @@ void TCC_Huskylens::setup() {
     }
 }
 
+
+/********** Check if the tag found is the right one **********/
 bool TCC_Huskylens::isTag(int indexTag){
     if(!huskylens.request()){
         return false;
@@ -28,6 +33,7 @@ bool TCC_Huskylens::isTag(int indexTag){
     return false;
 } 
 
+/********** Get the current tag informations **********/
 HUSKYLENSResult TCC_Huskylens::getTag(int indexTag){
     if(!huskylens.request()){
         result.ID = -1;
@@ -43,6 +49,8 @@ HUSKYLENSResult TCC_Huskylens::getTag(int indexTag){
     return result;
 } 
 
+
+/********** Print the informations about the current tag **********/
 void TCC_Huskylens::printResult(){
     if (result.command == COMMAND_RETURN_BLOCK){
         Serial.println(String()+F("Block:xCenter=")+result.xCenter+F(",yCenter=")+result.yCenter+F(",width=")+result.width+F(",height=")+result.height+F(",ID=")+result.ID);
@@ -55,6 +63,8 @@ void TCC_Huskylens::printResult(){
     }
 }
 
+
+/********** Check if the color found is the right one (red) **********/
 bool TCC_Huskylens::isColor(int indexColor){
     if(!huskylens.request()){
         return false;
