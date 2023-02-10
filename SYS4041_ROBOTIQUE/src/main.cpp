@@ -10,7 +10,7 @@ TCC_Huskylens huskylens;
 float asservAP = -0.3, asservAI = 0.1, 
         asservLP = 0.8, asservLI = 0,
         somErrA = 0, somErrL = 0;
-#define MAX_HEIGHT_ARUCO 185
+#define MAX_HEIGHT_ARUCO 180
 // Variables
   enum state_e {
     IDLE,
@@ -88,15 +88,13 @@ void stateMachine() {
       //faut checker la couleur si c'est vert on va dans START
       cmd_robot(0,0);
       if (checkcolor()) {
-        if(delayState(1000)) {
-          newState(START);
-        }
+        newState(START);
       }
       break;
 
     case START :
       //c'est vert, on démarre et on va dans look for tag
-      TagNbr = 1;
+      TagNbr = 7;
       cmd_robot(255,0);
       if(delayState(800)) {
         cmd_robot(0,0);
@@ -109,6 +107,7 @@ void stateMachine() {
     
     case LOOK_FOR_TAG :
       // on cherche le tag
+      cmd_robot(0, 255);
       if(huskylens.isTag(TagNbr)) {
         newState(TAG);
       }
@@ -117,17 +116,15 @@ void stateMachine() {
     
     case TAG :
       //on incrémente et on revient dans look for tag
-      if (TagNbr <= 6) {
+      if (TagNbr <= 7) {
         followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
         if(huskylens.getTag(TagNbr).height >= MAX_HEIGHT_ARUCO){
           newState(LOOK_FOR_TAG);
+          TagNbr ++;
         }
-        TagNbr ++;
       }
       else {
-        if(delayState(1000)) {
-            newState(STOP);
-        }
+          newState(STOP);
       }
       
       break;
