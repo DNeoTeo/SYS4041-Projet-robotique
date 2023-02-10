@@ -21,7 +21,7 @@ TCC_Tag tags;
     FOLLOW_TAG,
     TAG,
     STOP,
-    VICTORY
+    VICTORY_DANCE
   };
 
   state_e state = IDLE;
@@ -104,8 +104,7 @@ void stateMachine() {
       //If no the robot continue to look for the other
       Serial.println(TagNbr);
         tags.followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
-        int heightTAG = huskylens.getTag(TagNbr).height;        
-        if(heightTAG >= 140){
+        if(huskylens.getTag(TagNbr).height >= 140){
           
           TagNbr ++;
           if (TagNbr < MAX_NB_TAG){
@@ -113,7 +112,7 @@ void stateMachine() {
           }
           // If yes, the robot go to the state "stop"
           else{
-            newState(VICTORY);
+            newState(VICTORY_DANCE);
           }
         }
       
@@ -170,12 +169,17 @@ void stateMachine() {
       }      
       break;
 
-    case VICTORY:
-      motor.cmd_robot(0,255);
-      /*if(delayState(300)){
-        motor.cmd_robot(0,200);
+    // The robot found all the tag, the robot stop
+    case STOP :
+      motor.cmd_robot(0,0);
+      break;
+
+    case VICTORY_DANCE:
+      motor.cmd_robot(0,200);
+      if(delayState(300)){
+        motor.cmd_robot(0,-200);
         if(delayState(600)){
-          motor.cmd_robot(0,-200);
+          motor.cmd_robot(0,200);
           if(delayState(900)){
             motor.cmd_robot(0,-200);
             if(delayState(1200)){
@@ -183,13 +187,8 @@ void stateMachine() {
             }
           }
         }
-      }*/
+      }
       break;
-    // The robot found all the tag, the robot stop
-    case STOP :
-      motor.cmd_robot(0,0);
-      break;
-
 
     default:
         break;
