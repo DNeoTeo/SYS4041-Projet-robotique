@@ -21,16 +21,14 @@ TCC_Tag tags;
     FOLLOW_TAG,
     TAG,
     STOP,
-    VICTORY_DANCE,
-    DANCE_G,
-    DANCE_D,
-    DANCE_RECUL
+    VICTORY_DANCE
   };
 
-  state_e state = IDLE;
+  state_e state = START;
   long last_millis;
   int TagNbr = 0;
-
+  int tmp;
+  state_e nextState;
 /********** Functions **********/
 bool delayState (int delaytime);
 void newState(state_e newE);
@@ -44,14 +42,16 @@ void setup() {
     huskylens.setup();
     motor.setup();
     tags.setup(huskylens, motor);
+    tmp = 0;
+    nextState = START;
+    motor.cmd_robot(0,0);
 }
 
 /********** Loop **********/
 void loop() {
     stateMachine();
 }
-
-int tmp = 0;
+int stateDance=1;
 /********** State Machine **********/
 void stateMachine() {
   // Switch case
@@ -59,34 +59,36 @@ void stateMachine() {
   {
     // Start state the robot is looking for the color
     case IDLE :
-      //faut checker la couleur si c'est vert on va dans START
-      huskylens.huskylens.writeAlgorithm(ALGORITHM_COLOR_RECOGNITION);
-      motor.cmd_robot(0,0);
-      if (huskylens.isColor(1)) {
-          delay(1700);
-          newState(START);
+      if (delayState(tmp)) {
+          newState(nextState);
       }
       break;
 
     // The robot has found the right color, the race can start
     case START :
       // We setup everything for the tag search
-      huskylens.huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
-      // First the robot look for the tag n°1
-      TagNbr = 1;
-      newState(TAG);
+      //faut checker la couleur si c'est vert on va dans START
+      huskylens.huskylens.writeAlgorithm(ALGORITHM_COLOR_RECOGNITION);
+      motor.cmd_robot(0,0);
+      if (huskylens.isColor(1)) {
+          delay(1700); // Attente du levé de drapeau (ainsi le delay blocant est pratique) 
+          huskylens.huskylens.writeAlgorithm(ALGORITHM_TAG_RECOGNITION);
+          // First the robot look for the tag n°1
+          TagNbr = 1;
+          newState(TAG);
+      }      
       break;
     
     // The robot is looking around if it can find the right tag
     case LOOK_FOR_TAG :
-      // on cherche le tag //PETIT ACOU
+      // on cherche le tag
       if(huskylens.isTag(TagNbr)) {
         motor.cmd_robot(0, 0);
         newState(FOLLOW_TAG);
       }
       else {
         motor.cmd_robot(0, 155);
-        if(delayState(50)){ //A FAIRE
+        if(delayState(50)){ 
           newState(STOP_LOOK);
         } 
       }
@@ -114,7 +116,7 @@ void stateMachine() {
           if (TagNbr <= MAX_NB_TAG){
             newState(TAG);
           }
-          // If yes, the robot go to the state "stop"
+          // If yes, the robot go to the state "VICTORY DANCE"
           else{
             newState(VICTORY_DANCE);
           }
@@ -161,7 +163,7 @@ void stateMachine() {
         case 6:
           if(tmp == 1){
             motor.cmd_robot(50,-200);
-            if(delayState(280)){
+            if(delayState(300)){
               tmp = 2;
               last_millis = millis();
             }
@@ -186,40 +188,48 @@ void stateMachine() {
       break;
 
     case VICTORY_DANCE:
-      if(tmp == 1){
-        motor.cmd_robot(0,200);
-        if(delayState(500)){
-          tmp = 2;
-          last_millis = millis();
-        }
+    Serial.println(stateDance);
+      if(stateDance == 1){
+        motor.cmd_robot(0,255);
+        stateDance++;
+        tmp = 500;
+        nextState = VICTORY_DANCE;
+        newState(IDLE);
       }
-      else if(tmp == 2){
-        motor.cmd_robot(0,-200);
-        if(delayState(500)){
-          tmp = 3;
-          last_millis = millis();
-        }
+      else if(stateDance == 2){
+        motor.cmd_robot(0,-255);
+        stateDance++;
+        tmp = 500;
+        nextState = VICTORY_DANCE;
+        newState(IDLE);
       }
-      else if(tmp == 3){
-        motor.cmd_robot(0,200);
-        if(delayState(500)){
-          tmp = 4;
-          last_millis = millis();
-        }
+      else if(stateDance == 3){
+        motor.cmd_robot(0,255);
+        stateDance=4;
+        tmp = 500;
+        nextState = VICTORY_DANCE;
+        newState(IDLE);
       }
-      else if(tmp == 4){
-        motor.cmd_robot(0,-200);
-        if(delayState(500)){
-          tmp = 5;
-          last_millis = millis();
-        }
+      else if(stateDance == 4){
+        motor.cmd_robot(0,-255);
+        stateDance++;
+        tmp = 500;
+        nextState = VICTORY_DANCE;
+        newState(IDLE);
       }
-      else if(tmp == 5){
-        motor.cmd_robot(200,0);
-        if(delayState(500)){
-          tmp = 5;
-          newState(STOP);
-        }
+      else if(stateDance == 5){
+        motor.cmd_robot(-255,0);
+        stateDance++;
+        tmp = 500;
+        nextState = VICTORY_DANCE;
+        newState(IDLE);
+      }
+      else if(stateDance == 6){
+        motor.cmd_robot(0,-255);
+        stateDance++;
+        tmp = 2000;
+        nextState = STOP;
+        newState(IDLE);
       }
       break;
 
