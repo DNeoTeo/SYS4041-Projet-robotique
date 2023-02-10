@@ -19,11 +19,11 @@ class TCC_Tag {
         TCC_Motor motor;
 
         float asservAP = -0.3, asservAI = 0.1;
-        float asservLP = 0.8, asservLI = 0;
+        float asservLP = 0.9, asservLI = 0;
         float somErrA = 0, somErrL = 0;
 
     public:
-        TCC_Tag();
+        TCC_Tag(TCC_Huskylens _huskylens, TCC_Motor _motor);
         void followTag(int IDTag, int consigneCentre, int consigneDist);
 
 };
