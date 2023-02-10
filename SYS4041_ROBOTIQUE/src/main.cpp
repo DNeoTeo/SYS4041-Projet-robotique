@@ -1,4 +1,4 @@
-/*#include <Arduino.h>
+#include <Arduino.h>
 #include <HUSKYLENS.h>
 #include <TCC-motor.h>
 #include <TCC-Huskylens.h>
@@ -86,7 +86,7 @@ void stateMachine() {
     case IDLE :
       //faut checker la couleur si c'est vert on va dans START
       cmd_robot(0,0);
-      if (checkcolor()) {
+      if (huskylens.checkcolor()) {
         newState(START);
       }
       break;
@@ -106,8 +106,8 @@ void stateMachine() {
     
     case LOOK_FOR_TAG :
       // on cherche le tag
-      cmd_robot(0, 255);
-      if(huskylens.isTag(TagNbr)) {
+      cmd_robot(0, 0);
+      if(huskylens.isTag(TagNbr) && delayState(100)) {
         newState(TAG);
       }
       
@@ -115,6 +115,16 @@ void stateMachine() {
     
     case TAG :
       //on incrémente et on revient dans look for tag
+       switch (TagNbr)
+      {
+      case 1:
+        /* code */
+        break;
+      
+      default:
+        break;
+      }
+      followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
       if (TagNbr <= 7) {
         followTag(TagNbr, 160, MAX_HEIGHT_ARUCO);
         if(huskylens.getTag(TagNbr).height >= MAX_HEIGHT_ARUCO){
