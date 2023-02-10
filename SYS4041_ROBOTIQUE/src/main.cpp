@@ -21,7 +21,10 @@ TCC_Tag tags;
     FOLLOW_TAG,
     TAG,
     STOP,
-    VICTORY_DANCE
+    VICTORY_DANCE,
+    DANCE_G,
+    DANCE_D,
+    DANCE_RECUL
   };
 
   state_e state = IDLE;
@@ -206,6 +209,13 @@ void stateMachine() {
       }
       else if(tmp == 4){
         motor.cmd_robot(0,-200);
+        if(delayState(500)){
+          tmp = 5;
+          last_millis = millis();
+        }
+      }
+      else if(tmp == 5){
+        motor.cmd_robot(200,0);
         if(delayState(500)){
           tmp = 5;
           newState(STOP);
