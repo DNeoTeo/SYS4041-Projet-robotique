@@ -25,10 +25,10 @@ void loop() {
     Serial.println(F("###########"));
       if(isColor(1))
       {
-        Serial.println("C'est vert!");
+        Serial.println("C'est rouge!");
       }
       if(isColor(2)){
-        Serial.println("c'est rouge!");
+        Serial.println("c'est vert!");
       }    
     delay(200);
 }

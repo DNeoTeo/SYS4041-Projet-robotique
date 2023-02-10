@@ -53,6 +53,19 @@ void TCC_Huskylens::printResult(){
     }
 }
 
-bool TCC_Huskylens::checkcolor() {
+bool TCC_Huskylens::isColor() {
     return true;
 }
+
+bool TCC_Huskylens::isColor(int indexColor){
+    if(!huskylens.request()){
+        return false;
+    }
+    while(huskylens.available()){
+        HUSKYLENSResult result = huskylens.read();
+        if(result.ID == indexColor){
+          return true;
+        }
+    }
+    return false;
+} 

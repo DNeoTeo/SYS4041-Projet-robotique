@@ -86,7 +86,7 @@ void stateMachine() {
     case IDLE :
       //faut checker la couleur si c'est vert on va dans START
       motor.cmd_robot(0,0);
-      if (huskylens.checkcolor()) {
+      if (huskylens.isColor()) {
         newState(START);
       }
       break;
