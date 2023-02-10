@@ -13,7 +13,9 @@ public:
     HUSKYLENSResult getTag(int indexTag);
     void printResult();
     bool checkcolor();
+    bool isColor(int indexColor);
 };
+
 
 
 
