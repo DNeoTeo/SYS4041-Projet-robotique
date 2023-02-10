@@ -86,7 +86,7 @@ void stateMachine() {
     case IDLE :
       //faut checker la couleur si c'est vert on va dans START
       motor.cmd_robot(0,0);
-      if (huskylens.isColor()) {
+      if (true) { //huskylens.isColor(1)
         newState(START);
       }
       break;
@@ -106,7 +106,7 @@ void stateMachine() {
     
     case LOOK_FOR_TAG :
       // on cherche le tag
-      motor.cmd_robot(0, 40);
+      motor.cmd_robot(0, 60);
       if(huskylens.isTag(TagNbr)) {
         newState(FOLLOW_TAG);
       }
@@ -142,7 +142,7 @@ void stateMachine() {
           break;
         case 2:
           motor.cmd_robot(50,200);
-          if(delayState(700)){
+          if(delayState(400)){
             newState(LOOK_FOR_TAG);
           }
           break;
