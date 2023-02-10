@@ -31,7 +31,7 @@ bool TCC_Huskylens::isTag(int indexTag){
 HUSKYLENSResult TCC_Huskylens::getTag(int indexTag){
     if(!huskylens.request()){
         result.ID = -1;
-        return self.result;
+        return result;
     }
     while(huskylens.available()){
         result = huskylens.read();
@@ -43,7 +43,7 @@ HUSKYLENSResult TCC_Huskylens::getTag(int indexTag){
     return result;
 } 
 
-void TCC_Huskylens::printresult(){
+void TCC_Huskylens::printResult(){
     if (result.command == COMMAND_RETURN_BLOCK){
         Serial.println(String()+F("Block:xCenter=")+result.xCenter+F(",yCenter=")+result.yCenter+F(",width=")+result.width+F(",height=")+result.height+F(",ID=")+result.ID);
     }
