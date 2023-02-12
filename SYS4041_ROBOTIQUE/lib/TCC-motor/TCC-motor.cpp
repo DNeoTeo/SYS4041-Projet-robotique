@@ -49,10 +49,3 @@ void TCC_Motor::cmd_motors(int pwmD, int pwmG){
 void TCC_Motor::cmd_robot(int lineaire, int angulaire){
     cmd_motors(((lineaire-angulaire)>>1), ((lineaire+angulaire)>>1));
 }
-
-
-/********** to delete if not used **********/
-/********** Delay for the motor **********/
-// bool delayMove(int delaytime) {
-//     return((int)(millis()-last_millis)>= delaytime);
-// }

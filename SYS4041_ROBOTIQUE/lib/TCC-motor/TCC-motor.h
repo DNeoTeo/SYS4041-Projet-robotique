@@ -13,8 +13,6 @@ class TCC_Motor {
         int pinMotorPWM_B = 9;
 
     public:
-        long last_millis;
-
         TCC_Motor();
         void setup();
         void motorA_setDir(bool dir);
@@ -23,11 +21,6 @@ class TCC_Motor {
         void motorB_setPWM(int pwm);
         void cmd_motors(int pwmD, int pwmG);
         void cmd_robot(int lineaire, int angulaire);
-        
-        // To delete if not used
-        //bool delayMove(int delaytime);
-
-
 };
 
 #endif
